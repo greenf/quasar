@@ -67,7 +67,7 @@ class Context {
         $constructor = $class->getConstructor();
         $constructor->setAccessible(true);
         $object = $class->newInstanceWithoutConstructor();
-        $constructor->invoke($object, md5($this->name . $name), $name);
+        $constructor->invoke($object, $this->name . '.' . $name, $name);
 
         return $object;
     }

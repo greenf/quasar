@@ -9,35 +9,35 @@ class ContextPhpApplicationRepository extends PhpApplicationRepository implement
 
     public function save(Context $context): void
     {
-        $dir = $this->baseNamespace . DIRECTORY_SEPARATOR . $context->name();
-
-        $this->createDirectory($dir);
+        $this->createDirectory($this->contextDir($context->name()));
 
         foreach ($context->modules() as $module) {
-            $this->createDirectory($dir . DIRECTORY_SEPARATOR . $module->name());
+            $this->createDirectory($this->moduleDir($context->name(), $module->name()));
+
+            //$this->createDirectory($dir . DIRECTORY_SEPARATOR . $module->name() . DIRECTORY_SEPARATOR . 'Application');
+            //$this->createDirectory($dir . DIRECTORY_SEPARATOR . $module->name() . DIRECTORY_SEPARATOR . 'Domain');
+            //$this->createDirectory($dir . DIRECTORY_SEPARATOR . $module->name() . DIRECTORY_SEPARATOR . 'Infrastructure');
         }
     }
 
     public function get(string $name)
     {
-        $dir = $this->baseNamespace . DIRECTORY_SEPARATOR . $name;
-
-        if (!$this->directoryExists($dir)) {
+        if (!$this->directoryExists($this->contextDir($name))) {
             throw new \DomainException('Context does not exists.');
         }
 
-        return $this->createProtectedObject(Context::class, $name, $this->getModules($dir));
+        return $this->createProtectedObject(Context::class, $name, $this->getModules($name));
     }
 
-    private function getModules(string $dir): array
+    private function getModules(string $contextName): array
     {
         $modules = [];
 
-        $contextName = substr($dir, strrpos($dir, '/') + 1);
+        $dir = $this->contextDir($contextName);
 
         foreach (scandir($dir) as $el) {
             if ($this->isModule($dir, $el)) {
-                $modules[] = $this->createProtectedObject(Module::class, md5($contextName . $el), $el);
+                $modules[] = $this->createProtectedObject(Module::class, $contextName . '.' . $el, $el);
             }
         }
 

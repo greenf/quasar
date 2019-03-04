@@ -1,6 +1,11 @@
 <?php namespace Greenf\Quasar\Console;
 
-use Greenf\Quasar\Modules\Context\Application\Creator;
+use Greenf\Quasar\Modules\Aggregate\Application\AggregateBuilder;
+use Greenf\Quasar\Modules\Aggregate\Domain\ValueObject;
+use Greenf\Quasar\Modules\Aggregate\Infrastructure\AggregatePhpApplicationRepository;
+use Greenf\Quasar\Modules\Context\Application\Creator as ContextCreator;
+use Greenf\Quasar\Modules\Aggregate\Application\Manager as AggregateManager;
+use Greenf\Quasar\Modules\Context\Infrastructure\ContextCommonRepository;
 use Greenf\Quasar\Modules\Context\Infrastructure\ContextNeo4JRepository;
 use Greenf\Quasar\Modules\Context\Infrastructure\ContextPhpApplicationRepository;
 use Symfony\Component\Console\Command\Command;
@@ -51,25 +56,60 @@ class Rebuild extends Command {
 
         //dump('asd', $this->config);
 
-        //$repository = new ContextPhpApplicationRepository(
-        //    $this->config['php_app']['app_path'],
-        //    $this->config['php_app']['namespace']
-        //);
+        $contextRepository = new ContextPhpApplicationRepository($this->config['php_app']);
+
+        //$contextRepository = new ContextNeo4JRepository($this->config['neo4j']['bolt']);
         //
-        $repository = new ContextNeo4JRepository($this->config['neo4j']['bolt']);
+        //$contextRepository = new ContextCommonRepository(
+        //    $this->config['php_app']['app_path'],
+        //    $this->config['php_app']['namespace'],
+        //    $this->config['neo4j']['bolt']
+        //);
 
-        $creator = new Creator($repository);
+        $contextCreator = new ContextCreator($contextRepository);
 
-        $creator->create('Manufacture');
+        //$contextCreator->create('Manufacture');
+        //$contextCreator->makeModule('Manufacture', 'Order');
+        //$contextCreator->makeModule('Manufacture', 'Process');
+        //
+        //$contextCreator->create('Ecommerce');
+        //$contextCreator->makeModule('Ecommerce', 'Order');
 
-        $creator->makeModule('Manufacture', 'Order');
+        $aggregateRepository = new AggregatePhpApplicationRepository($this->config['php_app']);
 
+        $aggregateManager = new AggregateManager($aggregateRepository);
 
-        //$domainGenerator = new Domain($this->config);
-        //$domainGenerator->generate();
+        //$aggregateManager->create((new AggregateBuilder())
+        //    ->inContext('Ecommerce')
+        //    ->inModule('Order')
+        //    ->withName('NewOrder')
+        //    ->withCustomIdentity('OrderNumber', ValueObject::TYPE_STRING, true)
+        //    ->build());
+        //
+        //$aggregateManager->create((new AggregateBuilder())
+        //    ->inContext('Manufacture')
+        //    ->inModule('Order')
+        //    ->withName('Order')
+        //    ->withCustomIdentity('OrderNumber', ValueObject::TYPE_STRING, true)
+        //    ->build());
+        //
+        //$aggregateManager->create($agg = (new AggregateBuilder())
+        //    ->inContext('Manufacture')
+        //    ->inModule('Process')
+        //    ->withName('Process')
+        //    ->build());
+        //
+        //$aggregateManager->addProperty('Manufacture', 'Process', 'Process',
+        //    'OrderNumber', ValueObject::TYPE_STRING, false, true);
 
-        //$classDefinition = json_decode();
+        //$aggregateManager->addProperty('Manufacture', 'Process', 'Process',
+        //    'CreatedAt', ValueObject::TYPE_DATETIME, false, false);
 
+        $aggregateManager->addProperty('Manufacture', 'Process', 'Process',
+            'StartedAt', ValueObject::TYPE_DATETIME, false, false);
+
+        //$aggregateManager->addProperty('Ecommerce', 'Order', 'NewOrder',
+        //    'CreatedAt', ValueObject::TYPE_DATETIME, false, false);
     }
 
 }

@@ -90,7 +90,7 @@ class ContextNeo4JRepository extends Neo4jRepository implements ContextRepositor
         foreach ($contextData->records() as $record) {
             foreach($record->values() as $value) {
                 if ($value instanceof Node && $value->hasLabel('Module')) {
-                    $modules[] = $this->createProtectedObject(Module::class, md5($contextName . $value->get('name')), $value->get('name'));
+                    $modules[] = $this->createProtectedObject(Module::class, $contextName . '.' . $value->get('name'), $value->get('name'));
                 }
             }
         }

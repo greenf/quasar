@@ -43,7 +43,7 @@ class Helper {
         $constructor = $class->getConstructor();
         $constructor->setAccessible(true);
         $object = $class->newInstanceWithoutConstructor();
-        $constructor->invoke($object, md5('HelpdeskClient'), 'Client');
+        $constructor->invoke($object, 'Helpdesk.Client', 'Client');
 
         return $object;
     }
